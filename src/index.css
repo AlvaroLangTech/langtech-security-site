@@ -1,0 +1,381 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap");
+
+/* ================= Base / Tokens ================= */
+:root{
+  --bg-top:#0a1020; --bg-mid:#0c1428; --bg-bot:#0b101c;
+  --panel:rgba(18,26,46,.6);
+  --text:#e8eefc; --muted:#9aa6bf; --primary:#3b82f6; --line:rgba(255,255,255,.08);
+  --radius:16px;
+}
+
+html,body,#root{height:100%}
+body{
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(1200px 600px at 70% -10%, #13244a 0%, transparent 60%),
+    linear-gradient(180deg, var(--bg-top), var(--bg-mid), var(--bg-bot));
+}
+
+/* Evita conflito com Tailwind .container; renomeie se preferir */
+.container{max-width:1450px; margin:0 auto; padding:24px}
+
+/* ================= Primitivos ================= */
+.frost{
+  background:var(--panel);
+  backdrop-filter:blur(12px);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+}
+
+.btn{ @apply inline-flex items-center justify-center font-semibold px-4 py-2 rounded-md transition; }
+.btn-primary{ background:var(--primary); color:white; }
+.btn-outline{ border:1px solid var(--line); color:var(--text); }
+.btn:hover{ filter:brightness(1.06); }
+
+.card{ @apply p-5; display:flex; flex-direction:column; gap:12px; }
+.card h3{ @apply text-lg font-semibold; }
+.card ul{ @apply text-sm; color:var(--muted); list-style:disc; padding-left:18px; }
+
+.grid-plans{ display:grid; gap:14px; grid-template-columns:repeat(1,minmax(0,1fr)); }
+@media (min-width:720px){ .grid-plans{ grid-template-columns:repeat(3,minmax(0,1fr)); } }
+
+.hr{ height:1px; background:var(--line); }
+.price{ font-size:28px; font-weight:800; }
+.badge{ @apply text-xs px-2 py-0.5 rounded border; border-color:var(--line); color:var(--muted); }
+
+.center{text-align:center}
+.muted{color:var(--muted)}
+.title-center{font-size:24px; font-weight:800; text-align:center; margin-bottom:6px}
+
+/* ================= Seções ================= */
+.steps{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.steps .step{ display:flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--line); border-radius:12px; font-size:13px; color:var(--muted);}
+.steps .step span{ display:inline-flex; width:20px; height:20px; align-items:center; justify-content:center; border-radius:999px; background:rgba(59,130,246,.18); color:#9ec3ff; font-weight:800; }
+
+.features{ display:grid; gap:14px; grid-template-columns:repeat(1,minmax(0,1fr)); margin-top:14px; }
+@media (min-width:900px){ .features{ grid-template-columns:repeat(3,minmax(0,1fr)); } }
+.feature{ padding:16px; border-radius:16px; border:1px solid var(--line); }
+.feature .ico{ font-size:22px; margin-bottom:6px; }
+
+.cta{ margin-top:16px; text-align:center; padding:22px; display:flex; flex-direction:column; gap:8px; }
+
+.highlight{ margin:14px auto 6px; padding:16px; border:1px dashed rgba(255,255,255,.18); border-radius:14px; max-width:800px; }
+.highlight .proj{ font-weight:700; }
+
+/* Destaque do card "melhor escolha" */
+.card.best{ position:relative; box-shadow:0 0 0 2px rgba(59,130,246,.35) inset; }
+.best-badge{ font-size:11px; padding:2px 8px; border-radius:999px; background:rgba(59,130,246,.18); color:#9ec3ff; }
+
+/* ================= Carrinho ================= */
+.fab{
+  position:fixed; right:22px; bottom:22px; z-index:50;
+  width:56px; height:56px; border-radius:999px; background:var(--primary); color:white;
+  display:flex; align-items:center; justify-content:center; font-weight:700;
+  box-shadow:0 10px 30px rgba(59,130,246,.4);
+}
+.cart-badge{
+  position:absolute; top:-6px; right:-6px;
+  min-width:20px; height:20px; padding:0 6px;
+  border-radius:999px; background:#ef4444; color:#fff;
+  font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center;
+  border:2px solid rgba(0,0,0,.25);
+}
+
+.drawer{ position:fixed; inset:0; z-index:60; display:flex; justify-content:flex-end; background:rgba(0,0,0,.45); }
+.drawer-panel{ width:380px; max-width:100%; height:100%; padding:20px; gap:14px; display:flex; flex-direction:column; }
+
+/* Foco visual ao rolar para a seção de Dev */
+.pulse{ box-shadow:0 0 0 3px rgba(59,130,246,.35) inset; transition: box-shadow .8s ease; }
+
+/* ===== Estados de seleção (cards) ===== */
+.card{
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease, opacity .18s ease, filter .18s ease;
+}
+.card-ico{
+  display:inline-flex; font-size:20px;
+  transition: opacity .18s ease, filter .18s ease, transform .18s ease;
+  opacity:.7;
+}
+
+/* micro-bounce do ícone quando selecionado */
+@keyframes micro-bounce{
+  0%{transform:translateY(0) scale(1)}
+  35%{transform:translateY(-2px) scale(1.06)}
+  100%{transform:translateY(0) scale(1)}
+}
+
+/* Card selecionado: lift + glow; ícone destacado */
+.card.is-selected{
+  box-shadow: 0 0 0 2px rgba(59,130,246,.45) inset, 0 10px 30px rgba(0,0,0,.25);
+  transform: translateY(-2px);
+}
+.card.is-selected .card-ico{
+  opacity:1;
+  filter: drop-shadow(0 0 6px rgba(59,130,246,.45));
+  animation: micro-bounce .35s ease;
+}
+
+/* Cards NÃO selecionados da mesma seção: card inteiro mais “apagado” */
+.card.is-dim{
+  opacity:.55;
+  filter: grayscale(.2) saturate(.85) brightness(.9);
+}
+.card.is-dim:hover{
+  opacity:.7;
+}
+
+/* Botão “Selecionado” */
+button.btn.btn-primary:disabled,
+button.btn.btn-primary[aria-pressed="true"]{
+  opacity:.85;
+  cursor: default;
+}
+
+/* ========= Container e tipografia (respiro) ========= */
+:root{
+  --container: 1280px; /* pode subir p/ 1320+ depois */
+}
+.container{ max-width: var(--container); margin: 0 auto; padding: 24px; }
+.h1-xl{ font-size: clamp(28px, 3.2vw, 40px); line-height: 1.1; font-weight: 800; }
+.h2-lg{ font-size: clamp(20px, 2.2vw, 28px); line-height: 1.2; font-weight: 700; }
+.body-90{ font-size: .95rem; }
+
+/* ========= Grid consistente (1 → 3 col) ========= */
+.grid-plans{
+  display: grid; gap: 24px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px){
+  .grid-plans{ grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+}
+/* Cards mesma altura */
+.card{ display: flex; flex-direction: column; justify-content: space-between; min-height: 360px; }
+
+/* ========= Dominância do “melhor escolha” ========= */
+.best{
+  position: relative;
+  transform: scale(1.055); /* ~8–12% */
+  box-shadow: 0 0 0 1px rgba(59,130,246,.25), 0 10px 40px rgba(59,130,246,.20);
+  z-index: 1;
+}
+.best .price{ font-size: 34px; }
+.best-badge{
+  position: absolute; top: 10px; left: 10px;
+  padding: 6px 10px; border-radius: 999px; font-weight: 700;
+  background: rgba(59,130,246,.18); color: var(--text);
+  border: 1px solid rgba(255,255,255,.08);
+  backdrop-filter: blur(6px);
+}
+
+/* ========= Estados de seleção / interação ========= */
+.card:not(.is-selected):hover{ transform: translateY(-1px); transition: transform .15s ease; }
+.card.is-dim{ opacity: .55; filter: blur(1px) saturate(.9); transition: opacity .15s, filter .15s; }
+.btn:focus{ outline: 2px solid rgba(59,130,246,.55); outline-offset: 2px; }
+
+/* ========= CTA único nos cards ========= */
+.btn-cta{ width: 100%; height: 44px; font-weight: 700; border-radius: 12px; }
+.btn-cta-primary{ background: var(--primary); color: #fff; }
+.btn-cta-primary:disabled{ opacity: .65; cursor: not-allowed; }
+
+/* ========= Sticky CTA (rodapé) ========= */
+.sticky-cta{
+  position: sticky; bottom: 0; inset-inline: 0;
+  background: linear-gradient(180deg, rgba(10,16,32,.6), rgba(10,16,32,.95));
+  border-top: 1px solid var(--line); backdrop-filter: blur(8px);
+  padding: 12px 16px; display: none;
+}
+.sticky-cta.is-visible{ display: block; }
+.sticky-cta .row{ display:flex; align-items:center; gap: 12px; justify-content: space-between; max-width: var(--container); margin: 0 auto; }
+.sticky-cta .plan{ display:flex; align-items:center; gap:10px; font-weight:700; }
+.sticky-cta .price{ font-size: 20px; }
+
+/* ========= Toggle de faturamento (Mensal/Anual) ========= */
+.billing-toggle{
+  display: inline-flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 999px;
+  background: rgba(255,255,255,.04); border: 1px solid var(--line);
+}
+.switch{
+  position: relative; width: 52px; height: 28px; border-radius: 999px;
+  background: rgba(255,255,255,.12); border: 1px solid var(--line);
+}
+.switch::after{
+  content:""; position:absolute; top: 3px; left: 3px; width: 22px; height:22px; border-radius:999px;
+  background:#fff; transition: transform .18s ease;
+}
+.switch.is-on{ background: rgba(59,130,246,.35); border-color: rgba(59,130,246,.45); }
+.switch.is-on::after{ transform: translateX(24px); }
+
+/* ========= Badge PIX -5% + tooltip ========= */
+.badge-pix{
+  display:inline-flex; align-items:center; gap:6px; padding: 4px 8px; border-radius:999px;
+  background: rgba(16,185,129,.16); border: 1px solid rgba(16,185,129,.35);
+  font-size: 12px; font-weight: 700;
+}
+.tooltip{
+  position:relative; cursor: help;
+}
+.tooltip:hover::after{
+  content: attr(data-tip);
+  position:absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  white-space: nowrap; padding: 6px 10px; border-radius: 8px;
+  background: rgba(0,0,0,.85); color: #fff; font-size: 12px; font-weight: 600;
+  border: 1px solid rgba(255,255,255,.08);
+}
+
+/* ========= Barra de credibilidade (3 chips) ========= */
+.trust-bar{ display:flex; gap: 8px; flex-wrap: wrap; }
+.trust-chip{
+  display:inline-flex; align-items:center; gap:8px; padding: 6px 10px; border-radius: 999px;
+  background: rgba(255,255,255,.04); border: 1px solid var(--line);
+  font-weight: 700; font-size: 13px;
+}
+
+/* ========= Mini-case “Projeto em Destaque” ========= */
+.case-metrics{ display:flex; gap:10px; flex-wrap: wrap; }
+.case-metric{
+  padding: 6px 10px; border-radius: 10px; background: rgba(255,255,255,.04);
+  border: 1px solid var(--line); font-weight:700; font-size: 12px;
+}
+
+/* ========= Economia / ancoragem de preço ========= */
+.subprice{ font-size: 12px; opacity: .9; }
+.save{ color: #22c55e; font-weight: 700; }
+
+/* ========= Micro-loading em botões ========= */
+.btn[aria-busy="true"]{ pointer-events:none; opacity:.75; }
+.btn[aria-busy="true"]::after{
+  content:""; margin-left:8px; width:14px; height:14px; border-radius:50%;
+  border:2px solid rgba(255,255,255,.5); border-top-color: transparent; display:inline-block;
+  animation: spin .6s linear infinite;
+}
+@keyframes spin{ to{ transform: rotate(360deg); } }
+
+/* ===== Footer ===== */
+.site-footer{
+  margin-top: 28px; padding: 28px; border-radius: var(--radius);
+}
+.footer-grid{
+  display: grid; gap: 24px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 880px){
+  .footer-grid{ grid-template-columns: 1.2fr .8fr .8fr; gap: 28px; }
+}
+.footer-brand .brand-title{ font-weight: 800; font-size: 18px; margin-bottom: 6px; }
+.trust-list{ display: grid; gap: 6px; margin-top: 10px; font-weight: 600; }
+.footer-links h4, .footer-contact h4{ font-weight: 800; margin-bottom: 10px; }
+.footer-links ul, .footer-contact ul{ display: grid; gap: 8px; }
+.footer-links a{ text-decoration: none; }
+.footer-links a:hover{ text-decoration: underline; }
+
+.footer-whats{ margin-top: 12px; width: 100%; }
+
+.pay-icons{ display: flex; gap: 10px; margin-top: 12px; opacity: .9; }
+.pay-icons span{ display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 28px; border-radius: 8px; border: 1px solid var(--line);
+  background: rgba(255,255,255,.04); font-weight: 700;
+}
+
+.footer-bottom{
+  margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--line);
+  display:flex; align-items:center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.footer-legal{ display:flex; gap: 14px; }
+.footer-legal a{ text-decoration: none; }
+.footer-legal a:hover{ text-decoration: underline; }
+
+/* Organização visual do footer */
+.site-footer{ position: relative; z-index: 10; } /* footer fica baixo na pilha */
+.footer-grid{ align-items: start; }
+.footer-brand p{ margin-top: 6px; }
+.footer-links ul{ margin: 0; }
+.footer-contact ul{ margin: 0; }
+.footer-bottom small{ opacity: .9; }
+
+
+/* ===== FAB no canto superior direito ===== */
+.fab{
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  right: 16px;
+  bottom: auto;           /* removemos a ancoragem inferior */
+  left: auto;
+  z-index: 999;           /* acima do footer e do conteúdo */
+}
+
+/* Badge do carrinho segue igual; se precisar, reforço: */
+.cart-badge{ z-index: 1000; }
+
+/* Drawer sempre acima do FAB e de tudo */
+.drawer{ z-index: 1001; }
+.drawer-panel{ z-index: 1002; }
+
+/* Em telas muito pequenas, desce um pouco para não bater no topo */
+@media (max-width: 420px){
+  .fab{ top: calc(22px + env(safe-area-inset-top, 0px)); right: 12px; }
+}
+
+/* ===== Footer compacto ===== */
+.footer-compact{ padding: 16px 20px; border-radius: var(--radius); }
+.footer-row{
+  display:flex; align-items:center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+}
+.footer-brand .brand-title{ font-weight: 800; font-size: 14px; }
+.footer-brand .muted{ font-size: 13px; opacity: .9; }
+.footer-contact{ display:flex; align-items:center; gap: 16px; flex-wrap: wrap; }
+.footer-contact .email{ font-weight: 600; font-size: 13px; }
+.pay-icons{ display:flex; gap: 8px; }
+.pay-icons span{
+  width: 32px; height: 26px; display:inline-flex; align-items:center; justify-content:center;
+  border:1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.04); font-size: 14px;
+}
+.footer-bottom.compact{
+  margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line);
+  display:flex; align-items:center; justify-content: space-between;
+}
+
+/* ===== Atendimento (chip fixo acima do carrinho) ===== */
+.support-chip{
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  right: 16px;
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--line);
+  font-weight: 700;
+  backdrop-filter: blur(6px);
+}
+
+/* ===== FAB no topo direito, logo abaixo do chip ===== */
+.fab{
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top, 0px));
+  right: 16px;
+  z-index: 999; /* abaixo do chip, acima do conteúdo */
+}
+/* 44px do chip + 8px de gap */
+.fab-below-support{
+  top: calc(16px + 44px + 8px + env(safe-area-inset-top, 0px));
+}
+
+/* Drawer sempre acima de tudo (inclusive footer) */
+.drawer{ z-index: 1001; }
+.drawer-panel{ z-index: 1002; }
+
+/* Footer baixo na pilha para não cobrir fab/drawer */
+.site-footer{ position: relative; z-index: 10; }
+
+/* Ajuste em telas estreitas */
+@media (max-width: 420px){
+  .support-chip{ right: 12px; }
+  .fab{ right: 12px; }
+}
